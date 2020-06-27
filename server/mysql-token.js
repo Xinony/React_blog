@@ -239,12 +239,20 @@ router.post('/api/regist', (req, res) => {
 })
 
 router.get('/api/blog',(req,res) => {
-    console.log(req.query)
-    if (req.cookies) {
-        var token = req.cookies.token
-        var decode = checktoken(token)
-        console.log(decode)
-    }
+    var count=0
+    var countsql='SELECT count(*) as count from list'
+    connection.query(countsql,[], function (err, result) {
+        if (err) {
+            let data = {
+                code: API_CODE.ERR_DATA,
+                message: '数据库错误'
+            }
+            console.log(err)
+            res.send(data);
+            return;
+        }
+        count=result[0].count
+    })
     var sql = 'SELECT * FROM list LIMIT ? OFFSET ?';
     connection.query(sql, [parseInt(req.query.limit), parseInt(req.query.offset)], function (err, result) {
         if (err) {
@@ -261,7 +269,7 @@ router.get('/api/blog',(req,res) => {
             code:API_CODE.OK,
             message:'success',
             data:{
-                count:result.length,
+                count:count,
                 rows:result
             }
         }
@@ -314,8 +322,127 @@ router.get('/api/blog/detail',(req,res) => {
     })
 
 })
+router.post('/api/blog/creatblog',(req,res) => {
+    const Istoken=checktoken(req.cookies.token)
+    if(!Istoken){
+        let data={
+            code:API_CODE.ERR_LOGOUT,
+            message:"身份信息已过期，请重新登录",
+        }
+        res.send(data)
+        return
+    }
+    console.log("body:",req.body)
+    var user_id=req.body.user_id,
+        title=req.body.title,
+        summary=req.body.summary,
+        content=req.body.content,
+        tags=req.body.tags,
+        datanow=moment().format('YYYY-MM-DD HH:mm:ss')
+    var sql="INSERT INTO list (`title`,`summary`,`content`,`tags`,`created_at`,`updated_at`,`user_id`) VALUES (?,?,?,?,?,?,?)"
+    connection.query(sql,[title,summary,content,tags,datanow,datanow,user_id],function (err,result) {
+        if(err){
+            let data = {
+                code: API_CODE.ERR_DATA,
+                message: '数据库错误'
+            }
+            console.log(err)
+            res.send(data);
+            return;
+        }
+        let data={
+            code:API_CODE.OK,
+            message:'发布成功',
+            data:result.message
+        }
+        res.send(data)
+        console.log(result)
+    })
+})
+
+
+router.post('/api/blog/detail/update',(req,res) => {
+    const Istoken=checktoken(req.cookies.token)
+    if(!Istoken){
+        let data={
+            code:API_CODE.ERR_LOGOUT,
+            message:"身份信息已过期，请重新登录",
+        }
+        res.send(data)
+        return
+    }
+    console.log("body:",req.body)
+    var id=req.body.id,
+        title=req.body.title,
+        summary=req.body.summary,
+        content=req.body.content,
+        tags=req.body.tags,
+        catalog_id=req.body.catalog_id
+    var sql="UPDATE list SET `title`=?,`summary`=?,`content`=?,`tags`=?,`catalog_id`=?,`updated_at`=? WHERE `id`=?"
+    connection.query(sql,[title,summary,content,tags,catalog_id,moment().format('YYYY-MM-DD HH:mm:ss'),id],function (err,result) {
+        if(err){
+            let data = {
+                code: API_CODE.ERR_DATA,
+                message: '数据库错误'
+            }
+            console.log(err)
+            res.send(data);
+            return;
+        }
+        let data={
+            code:API_CODE.OK,
+            message:'修改成功',
+            data:result.message
+        }
+        res.send(data)
+        console.log(result)
+    })
+})
+
+router.delete('/api/blog/delete',(req,res)=>{
+
+    const Istoken=checktoken(req.cookies.token)
+    if(!Istoken){
+        let data={
+            code:API_CODE.ERR_LOGOUT,
+            message:"身份信息已过期，请重新登录",
+        }
+        res.send(data)
+        return
+    }
+    var id=req.query.id
+    var sql="DELETE FROM list WHERE `id`=?"
+    connection.query(sql,[id],function (err,result) {
+        if(err){
+            let data = {
+                code: API_CODE.ERR_DATA,
+                message: '数据库错误'
+            }
+            console.log(err)
+            res.send(data);
+            return;
+        }
+        let data={
+            code:API_CODE.OK,
+            message:'删除成功',
+            data:result.message
+        }
+        res.send(data)
+        console.log(result)
+
+    })
+})
 
 router.post('/api/blog/detail/creatcomment',(req,res) => {
+    const Istoken=checktoken(req.cookies.token)
+    if(!Istoken){
+        let data={
+            code:API_CODE.ERR_LOGOUT,
+            message:"身份信息已过期，请重新登录",
+        }
+        res.send(data)
+        return
+    }
     console.log(req.body)
     var blog_id=req.body.blog_id,
         user_id=req.body.user_id,
