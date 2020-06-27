@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { timetrans, color } from '../../utils/utils'
+import { timetrans, color } from '../../../utils/utils'
 import { 
   List,
   Icon,
@@ -11,7 +11,7 @@ import {
 import SiderCustom from '../sider/siderCustom'
 import {
   getBlogList
-} from '../../redux/blog.redux'
+} from '../../../redux/blog.redux'
 import './list.css'
 @connect(
   state => state.blog,
@@ -24,11 +24,11 @@ class BlogList extends Component {
       currentPage: 1
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     const { tags, catalog } = this.props.match.params
     this.getBlog(tags, catalog)
   }
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
     if (this.props.match.url !== nextProps.match.url) {
       const { tags, catalog } = nextProps.match.params
       this.getBlog(tags, catalog)

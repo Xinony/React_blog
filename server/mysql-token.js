@@ -94,6 +94,7 @@ router.post('/api/login', (req, res) => {
                     let payload={
                         userid:result[0].userid,
                         username:result[0].username,
+                        usertype:result[0].usertype,
                         logintime:logintime
                     }
                     let config={
@@ -178,6 +179,7 @@ router.post('/api/regist', (req, res) => {
                 let payload={
                     userid:req.body.userid,
                     username:req.body.username,
+                    usertype:0,
                     logintime:logintime
                 }
                 let config={
@@ -296,6 +298,12 @@ router.get('/api/blog/detail',(req,res) => {
             code:API_CODE.OK,
             message:'success',
             data:result[0]
+        }
+    })
+    var addsizesql='UPDATE list SET readSize=readSize+1 WHERE id=?'
+    connection.query(addsizesql,[req.query.id],function (err,result) {
+        if (err) {
+            console.log(err)
         }
     })
     var sql = 'SELECT * FROM comment WHERE blog_id=?';
@@ -449,6 +457,12 @@ router.post('/api/blog/detail/creatcomment',(req,res) => {
         content=req.body.content,
         username=req.body.username,
         date=req.body.date
+    var addsizesql='UPDATE list SET commentSize=commentSize+1 WHERE id=?'
+    connection.query(addsizesql,[blog_id],function (err,result) {
+        if (err) {
+            console.log(err)
+        }
+    })
     var sql='INSERT INTO comment (blog_id,user_id,content,username,created_at) VALUES (?,?,?,?,?)'
     connection.query(sql,[blog_id,user_id,content,username,moment(+date).format('YYYY-MM-DD HH:mm:ss')],function (err,result) {
         if (err) {
@@ -467,6 +481,20 @@ router.post('/api/blog/detail/creatcomment',(req,res) => {
         }
         res.send(data)
     })
+})
+
+router.get('/api/admin/check',(req,res) => {
+    if(req.cookies.token) {
+        let data={
+            code:API_CODE.OK,
+            message:"success",
+        }
+        console.log(checktoken(req.cookies.token))
+        res.send(checktoken(req.cookies.token))
+    }
+    else{
+        res.send()
+    }
 })
 
 let server = router.listen('8080', function(){

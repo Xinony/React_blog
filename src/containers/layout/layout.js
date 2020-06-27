@@ -6,7 +6,7 @@ import {
   Route
 } from 'react-router-dom'
 import { routes } from '../../constants/routes'
-import HeaderCustom from '../../components/header/headerCustom'
+import HeaderCustom from '../../components/blog/header/headerCustom'
 import './layout.css'
 import beian from "../../assets/beian.png"
 const { Content, Footer } = Layout
@@ -36,7 +36,7 @@ class Index extends Component {
           <Footer
             style={{textAlign: 'center'}}
           >
-            <p>&copy;2020 Xino's Blog 闽ICP备20003537号 <a target="_blank" rel="noopener noreferrer" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35020302033779" ><p><img src={beian} alt={"beian"}/>闽公网安备 35020302033779号</p></a></p>
+            <p>&copy;2020 Xino's Blog 闽ICP备20003537号 </p><p><a target="_blank" rel="noopener noreferrer" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35020302033779" ><img src={beian} alt={"beian"}/>闽公网安备 35020302033779号</a></p>
           </Footer>
         </Layout>
       </Layout>

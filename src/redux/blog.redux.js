@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {API_CODE} from "../common/js/api";
+import {message} from "antd";
 
 /**
  * action type
@@ -10,6 +11,9 @@ const DESC_SUCCESS = 'DESC_SUCCESS'
 const DESC_FAILURE = 'DESC_FAILURE'
 const COMMENT_SUCCESS = 'COMMENT_SUCCESS'
 const COMMENT_FAILURE = 'COMMENT_FAILURE'
+const DELETE_SUCCESS = 'DELETE_SUCCESS'
+const PUBLISH_SUCCESS = 'PUBLISH_SUCCESS'
+const ERROR = 'ERROR'
 /**
  * state
  */
@@ -29,12 +33,27 @@ const initState = {
  */
 export function blog(state=initState, action) {
   switch(action.type) {
+    case PUBLISH_SUCCESS:
+      return {
+        ...state,
+        msg: action.payload
+      }
+    case DELETE_SUCCESS:
+      return {
+        ...state,
+        content: state.content.filter(v => v.id !== action.payload)
+      }
     case LIST_SUCCESS:
       return {
         ...state,
         content: action.payload.data.rows,
-        msg: action.payload.msg,
+        msg: action.payload.message,
         totalElements: action.payload.data.count
+      }
+    case ERROR:
+      return {
+        ...state,
+        msg: action.payload
       }
     case DESC_SUCCESS:
       return {
@@ -46,7 +65,6 @@ export function blog(state=initState, action) {
         msg: action.payload.message
       }
     case COMMENT_SUCCESS:
-      console.log(state.desc)
       return {
         ...state,
         commentSize: state.desc.comment.push({
@@ -70,14 +88,24 @@ export function blog(state=initState, action) {
 /**
  * action type
  */
-
+function publishSuccess(data) {
+  return {
+    type: PUBLISH_SUCCESS,
+    payload: data
+  }
+}
 function listSuccess(data) {
   return {
     type: LIST_SUCCESS,
     payload: data
   }
 }
-
+function deteleSuccess(id) {
+  return {
+    type: DELETE_SUCCESS,
+    payload: id
+  }
+}
 function listFailure(data) {
   return {
     type: LIST_FAILURE,
@@ -114,10 +142,43 @@ function commentFailure(data) {
     payload: data
   }
 }
+function errorMsg(data) {
+  return {
+    type: ERROR,
+    payload: data
+  }
+}
 
 /**
  * aysnc function
  */
+
+export function publish({
+                          title,
+                          summary,
+                          content,
+                          tags,
+                          catalog_id,
+                          user_id
+                        }) {
+  return dispatch => {
+    axios.post('/api/blog/creatblog', {
+      title,
+      summary,
+      content,
+      tags,
+      catalog_id,
+      user_id
+    })
+        .then(res => {
+          if (res.status === 200 && res.data.code === API_CODE.OK) {
+            dispatch(publishSuccess(res.data.message))
+          } else {
+            dispatch(errorMsg(res.data.message))
+          }
+        })
+  }
+}
 
 export function getBlogList({
   offset,
@@ -137,7 +198,6 @@ export function getBlogList({
       }
     })
       .then(res => {
-        console.log(res)
         if (res.status === 200 && res.data.code === API_CODE.OK) {
           dispatch(listSuccess(res.data))
         } else {
@@ -149,13 +209,25 @@ export function getBlogList({
       })
   }
 }
-
+export function deleteBlog(id) {
+  return dispatch => {
+    axios.delete(`/api/blog/delete?id=${id}`)
+        .then(res => {
+          if (res.status === 200 && res.data.code === API_CODE.OK) {
+            dispatch(deteleSuccess(id))
+            message.success(res.data.message, 1)
+          } else {
+            dispatch(errorMsg(res.data.message))
+            message.error(res.data.message, 1)
+          }
+        })
+  }
+}
 export function getBlogDesc(id) {
   return dispatch => {
     axios.get(`/api/blog/detail?id=${id}`)
       .then(res => {
         if (res.status === 200 && res.data.code === API_CODE.OK) {
-          console.log(res.data)
           dispatch(descSuccess(res.data))
         } else {
           dispatch(descFailure(res.data.message))
@@ -182,7 +254,6 @@ export function createComment({
       date:+Date.now()
     })
     .then(res => {
-      console.log(res)
       if(res.status === 200 && res.data.code === API_CODE.OK) {
         dispatch(commentSuccess(res.data, content, username))
       } else {

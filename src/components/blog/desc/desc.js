@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getBlogDesc } from '../../redux/blog.redux'
+import { getBlogDesc } from '../../../redux/blog.redux'
 import marked from 'marked'
 import hljs from 'highlight.js'
 import {
   timetrans,
   color
-} from '../../utils/utils'
+} from '../../../utils/utils'
 import {
   Card,
   Icon,
@@ -30,19 +30,17 @@ class Desc extends Component {
       loading: true
     }
   }
-  componentWillMount() {
+
+  componentDidMount() {
     marked.setOptions({
       highlight: code => hljs.highlightAuto(code).value
     })
-  }
-  componentDidMount() {
     this.props.getBlogDesc(this.state.id)
     this.setState({
       loading: !this.state.loading
     })
   }
   render() {
-    console.log(this.props.desc)
     const IconText = ({ type, text }) => (
       <span key={text}>
         <Icon type={type} style={{ marginRight: 8 }} />

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import avatar from '../../assets/avatar.jpg'
+import avatar from '../../../assets/avatar.jpg'
 import {
   Card,
 } from 'antd'

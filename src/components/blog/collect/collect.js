@@ -1,40 +1,44 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   Row,
   Col,
-  List
+  message,
+  List,
+  Tag
 } from 'antd'
 import axios from 'axios'
+import { color } from '../../../utils/utils'
 import SiderCustom from '../sider/siderCustom'
-import { timetrans } from '../../utils/utils'
-import { archive } from '../../constants/archive'
-import {API_CODE} from "../../common/js/api";
-import './archive.css'
-class Archive extends Component {
+import './collect.css'
+class Collect extends Component {
   constructor(props) {
     super(props)
     this.state = {
       data: '',
-      year: 2020,
-      currentPage: 1
+      currentPage: 1,
+      totalElements: 0
     }
-    this.getBlogByYear = this.getBlogByYear.bind(this)
+    this.getCollectList = this.getCollectList.bind(this)
   }
+
   componentDidMount() {
-    this.getBlogByYear(this.state.year)
+    this.getCollectList()
   }
-  getBlogByYear(year) {
-    axios.get('/api/archive', {
+  getCollectList(offset = 0, limit = 10) {
+    axios.get('/api/collect', {
       params: {
-        year: year
+        offset,
+        limit
       }
     })
     .then(res => {
-      if(res.status === 200 && res.data.code === API_CODE.OK) {
+      if (res.status === 200 && res.data.code === 0) {
         this.setState({
           data: res.data.data,
-          year: res.data.year
+          totalElements: res.data.data.count
         })
+      } else {
+        message.error(res.data.msg)
       }
     })
     .catch(err => {
@@ -43,16 +47,16 @@ class Archive extends Component {
   }
   render() {
     const pagination = {
-      pageSize: 1,
-      current: this.state.currentPage,
-      total: archive.length,
+      pageSize: 10,
       size: 'small',
+      current: this.state.currentPage,
+      total: this.state.totalElements,
       onChange: ((page, pageSize) => {
         this.setState({
           currentPage: page
         })
-        this.getBlogByYear(archive.filter(v => v.index === page)[0].year)
-      })
+        this.getCollectList(pageSize * (page - 1))
+      }),
     }
     return (
       <div>
@@ -61,28 +65,32 @@ class Archive extends Component {
             lg={{ span: 15, offset: 1 }}
             md={{ span: 15, offset: 1 }}
             xs={{ span: 24 }}
-            className="archive-wrapper"
           >
             <List
+              className="collect-list"
+              header={<div className="collect-header">文章收藏</div>}
               itemLayout="vertical"
-              header={this.state.year}
               pagination={pagination}
               dataSource={this.state.data.rows}
-              className="archive-list"
               renderItem={item => (
                 <List.Item
                   key={item.title}
-                  extra={timetrans(item.created_at)}
-                  style={{cursor: 'pointer'}}
+                  extra={item.date}
                 >
                   <List.Item.Meta
-                    description={item.title}
-                    onClick={()=>this.props.history.push(`/app/blog/desc/${item.id}`)}
+                    description={[<a key={item.link} href={item.link}>{item.title}</a>, 
+                      <Tag
+                        key={item.id}
+                        className="article-author"
+                        color={color[Math.floor(Math.random()*color.length)]}
+                      >
+                        {item.author}
+                      </Tag>
+                    ]}
                   />
                 </List.Item>
               )}
-            >
-            </List>
+            />
           </Col>
           <Col
             lg={{ span: 6, offset: 1 }}
@@ -106,4 +114,4 @@ class Archive extends Component {
   }
 }
 
-export default Archive
+export default Collect

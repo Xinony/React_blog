@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getDateDiff } from '../../utils/utils'
+import { getDateDiff } from '../../../utils/utils'
 import {
   List,
   Avatar,

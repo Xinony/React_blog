@@ -11,13 +11,13 @@ import {
 } from 'antd'
 import Cookies from 'js-cookie'
 import { connect } from 'react-redux'
-import Login from '../../containers/login/login'
-import Register from '../../containers/register/register'
+import Login from '../../../containers/login/login'
+import Register from '../../../containers/register/register'
 import Navigate from '../menu/menu'
-import { logout } from '../../redux/user.redux'
-import { menus } from '../../constants/menus'
+import { logout } from '../../../redux/user.redux'
+import { menus } from '../../../constants/menus'
 import './header.css'
-import logo from "../../assets/logo.jpg";
+import logo from "../../../assets/logo.jpg";
 const { Header } = Layout
 
 @connect(
