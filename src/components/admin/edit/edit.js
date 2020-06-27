@@ -7,9 +7,11 @@ import {
   Col,
   Button,
   Icon,
-  message
+  message, Card
 } from 'antd'
 import {API_CODE} from "../../../common/js/api";
+import marked from "marked";
+import hljs from "highlight.js";
 @connect(
   state => state.blog
 )
@@ -32,14 +34,18 @@ class Edit extends Component {
     this.handleSelect = this.handleSelect.bind(this)
   }
   componentDidMount() {
+    marked.setOptions({
+      highlight: code => hljs.highlightAuto(code).value
+    })
     const blogId = this.props.match.params.id
     this.getBlogDesc(blogId)
   }
   handleChange (event) {
     this.setState({
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
     })
   }
+
   handleSelect(value) {
     this.setState({
       catalog_id: value
@@ -144,6 +150,16 @@ class Edit extends Component {
                 value={this.state.content}
                 onChange = {this.handleChange}
               />
+            </div>
+            <div className="publish-input">
+              <Card
+              title="预览"
+              >
+              <div
+                  className="article-detail"
+                  dangerouslySetInnerHTML={{ __html: this.state.content ? marked(this.state.content) : null }}
+              />
+              </Card>
             </div>
             <div className="publish-input">
               <Input

@@ -5,9 +5,10 @@ import {
   Row,
   Col,
   Input,
-  Button
+  Button, Card
 } from 'antd'
 import './publish.css'
+import marked from "marked";
 @connect(
   state => state.blog,
   { publish }
@@ -83,12 +84,22 @@ class Publish extends Component {
             <div className="publish-input">
               <TextArea 
                 rows={6} 
-                autosize={{ minRows: 15}}
+                autoSize={{ minRows: 15}}
                 placeholder="文章内容 markdown格式" 
                 name="content"
                 value={this.state.content}
                 onChange = {this.handleChange}
               />
+            </div>
+            <div className="publish-input">
+              <Card
+                  title="预览"
+              >
+                <div
+                    className="article-detail"
+                    dangerouslySetInnerHTML={{ __html: this.state.content ? marked(this.state.content) : null }}
+                />
+              </Card>
             </div>
             <div className="publish-input">
               <Input
