@@ -37,7 +37,7 @@
     "js-cookie": "^2.2.0",
     "js-md5": "^0.7.3",
     "jsonwebtoken": "^8.5.1",
-    "marked": "^0.3.12",
+    "marked": "^4.0.10",
     "moment": "^2.27.0",
     "mysql": "^2.18.1",
     "nprogress": "^0.2.0",
